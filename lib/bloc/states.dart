@@ -56,6 +56,15 @@ class MainDownloadingState extends MainBlocState {
   }
 }
 
+class MainDownloadingFailedState extends MainBlocState {
+  MainDownloadingFailedState(model, viewModel) : super(model, viewModel);
+
+  @override
+  bool isValidTransitionEvent(MainBlocEvent event) {
+    return event is MainDownloadDifferenceButtonPressEvent || event is MainFetchDifferenceButtonPressEvent;
+  }
+}
+
 class MainDownloadedState extends MainBlocState {
   MainDownloadedState(model, viewModel) : super(model, viewModel);
 

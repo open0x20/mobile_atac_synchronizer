@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile_atac_synchronizer/bloc/states.dart';
 
@@ -16,7 +17,22 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'ATAC Synchronizer',
       theme: ThemeData(
-        primarySwatch: Colors.orange,
+        primarySwatch: MaterialColor(
+          0xFFFF7002,
+          <int, Color>{
+            50: Color(0xFF000000),
+            100: Color(0xFF000000),
+            200: Color(0xFF000000),
+            300: Color(0xFF000000),
+            400: Color(0xFF000000),
+            500: Color(0xFFFF7002), // base
+            600: Color(0xFF000000),
+            700: Color(0xFF000000),
+            800: Color(0xFF000000),
+            900: Color(0xFF000000),
+          },
+        ),
+
       ),
       home: MyHomePage(title: 'ATAC Synchronizer'),
     );
@@ -37,7 +53,11 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(
+          widget.title,
+          style: TextStyle(color: Colors.white),
+        ),
+        brightness: Brightness.dark,
       ),
       body: BlocProvider(
         create: (_) => MainBloc.init(),
@@ -63,14 +83,14 @@ class _MyHomePageState extends State<MyHomePage> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           ElevatedButton(
-                            child: Text('Calculate Difference'),
-                            onPressed: state.viewModel.isFetchButtonEnbaled
+                            child: Text('Calculate Difference', style: TextStyle(color: Colors.white),),
+                            onPressed: state.viewModel.isFetchButtonEnabled
                                 ? () => { BlocProvider.of<MainBloc>(context).add(MainFetchDifferenceButtonPressEvent()) }
                                 : null,
                           ),
                           ElevatedButton(
-                            child: Text('Download'),
-                            onPressed: state.viewModel.isDownloadButtonEnbaled
+                            child: Text('Download', style: TextStyle(color: Colors.white),),
+                            onPressed: state.viewModel.isDownloadButtonEnabled
                                 ? () => { BlocProvider.of<MainBloc>(context).add(MainDownloadDifferenceButtonPressEvent()) }
                                 : null,
                           ),
@@ -79,12 +99,13 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsets.all(12),
-                  child: Container(
-                    width: double.infinity,
-                    color: Colors.white70,
-                    child: _resultLog(state, state is MainDiffLoadingState),
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.all(12),
+                    child: Container(
+                      width: double.infinity,
+                      child: _resultLog(state)
+                    ),
                   ),
                 ),
               ],
@@ -95,20 +116,22 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Container _resultLog(MainBlocState state, bool isLoading) {
-    if (isLoading) {
-      return Container(
-        child: Center(child: CircularProgressIndicator()),
-      );
-    } else {
-      return Container(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text('Result Log:' + state.viewModel.consoleLog)
-          ],
+  ListView _resultLog(MainBlocState state) {
+    List<Text> entries = [];
+
+    for (String log in state.viewModel.logs) {
+      entries.add(Text(
+        log,
+        style: TextStyle(
+          fontSize: 10.0,
+          color: (log.startsWith('E:') ? Colors.red : Colors.black87)
         ),
-      );
+      ));
     }
+
+    return ListView(
+      shrinkWrap: true,
+      children: [...entries],
+    );
   }
 }

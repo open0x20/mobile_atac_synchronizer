@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile_atac_synchronizer/bloc/events.dart';
 import 'package:mobile_atac_synchronizer/bloc/states.dart';
 import 'package:mobile_atac_synchronizer/domain/main.dart';
+import 'package:mobile_atac_synchronizer/domain/results.dart';
 import 'package:mobile_atac_synchronizer/model/model.dart';
 import 'package:mobile_atac_synchronizer/model/view_model.dart';
 
@@ -10,14 +13,9 @@ class MainBloc extends Bloc<MainBlocEvent, MainBlocState> {
 
   factory MainBloc.init() {
     return MainBloc(MainInitState(
-        MainModel(
-            filenames: [''].toList(),
-        ),
+        MainModel(),
         MainViewModel(
-          filenames: [''].toList(),
-          isFetchButtonEnbaled: true,
-          isDownloadButtonEnbaled: false,
-          consoleLog: '',
+          isFetchButtonEnabled: true,
         ),
     ));
   }
@@ -25,67 +23,74 @@ class MainBloc extends Bloc<MainBlocEvent, MainBlocState> {
   @override
   Stream<MainBlocState> mapEventToState(MainBlocEvent event) async* {
     // Fetching
-    if (event is MainFetchDifferenceButtonPressEvent &&
-        state.isValidTransitionEvent(event)) {
+    if (event is MainFetchDifferenceButtonPressEvent && state.isValidTransitionEvent(event)) {
       yield MainDiffLoadingState(state.model, state.viewModel);
 
       try {
-        final List<String> difference = await MainDomain
-            .fetchDifferenceFromWLAN();
-        final MainViewModel newMainViewModel = MainViewModel(
-            filenames: difference,
-            isFetchButtonEnbaled: true,
-            isDownloadButtonEnbaled: true,
-            consoleLog: state.viewModel.consoleLog +
-                '\nDetected ${difference.length} new songs.'
-        );
-        yield MainDiffLoadedState(state.model, newMainViewModel);
+        await for (Result<List<String>> result in MainDomain.fetchDifference()) {
+          if (result is IntermediateResult) {
+            final MainViewModel newMainViewModel = MainViewModel(
+              logs: [...state.viewModel.logs, result.message],
+            );
+            yield MainDiffLoadingState(state.model, newMainViewModel);
+          } else if (result is ErrorResult) {
+            final MainViewModel newMainViewModel = MainViewModel(
+                isFetchButtonEnabled: true,
+                isDownloadButtonEnabled: true,
+              logs: [...state.viewModel.logs, result.message],
+            );
+            yield MainDiffLoadingFailedState(state.model, newMainViewModel);
+          } else if (result is FinalResult) {
+            final MainViewModel newMainViewModel = MainViewModel(
+              difference: result.result,
+              isFetchButtonEnabled: true,
+              isDownloadButtonEnabled: true,
+              logs: [...state.viewModel.logs, result.message],
+            );
+            yield MainDiffLoadedState(state.model, newMainViewModel);
+          }
+        }
       } catch (e) {
         final MainViewModel newMainViewModel = MainViewModel(
-            filenames: [],
-            isFetchButtonEnbaled: true,
-            isDownloadButtonEnbaled: false,
-            consoleLog: state.viewModel.consoleLog +
-                '\nFailed to fetch difference.'
+            isFetchButtonEnabled: true,
+          logs: [...state.viewModel.logs, 'E: An unexpected error occurred.', 'E: ${e.toString()}'],
         );
-        yield MainDiffLoadingFailedState(state.model, state.viewModel);
+        yield MainDiffLoadingFailedState(state.model, newMainViewModel);
       }
       return;
     }
 
     // Downloading
-    if (event is MainDownloadDifferenceButtonPressEvent &&
-        state.isValidTransitionEvent(event)) {
+    if (event is MainDownloadDifferenceButtonPressEvent && state.isValidTransitionEvent(event)) {
       yield MainDownloadingState(state.model, state.viewModel);
 
       try {
-        final List<String> difference = await MainDomain
-            .downloadDifferenceFromWLAN();
-        final MainModel newMainModel = MainModel(
-          filenames: [
-            ...state.model.filenames,
-            ...difference
-          ],
-        );
-        await MainDomain.saveFilenames();
-
-        final MainViewModel newMainViewModel = MainViewModel(
-            filenames: difference,
-            isFetchButtonEnbaled: true,
-            isDownloadButtonEnbaled: true,
-            consoleLog: state.viewModel.consoleLog +
-                '\nDetected ${difference.length} new songs.'
-        );
-        yield MainDiffLoadedState(newMainModel, newMainViewModel);
+        await for (Result<List<String>> result in MainDomain.downloadDifference(state.viewModel.difference)) {
+          if (result is IntermediateResult) {
+            final MainViewModel newMainViewModel = MainViewModel(
+              logs: [...state.viewModel.logs, result.message],
+            );
+            yield MainDownloadingState(state.model, newMainViewModel);
+          } else if (result is ErrorResult) {
+            final MainViewModel newMainViewModel = MainViewModel(
+              isFetchButtonEnabled: true,
+              logs: [...state.viewModel.logs, result.message],
+            );
+            yield MainDownloadingFailedState(state.model, newMainViewModel);
+          } else if (result is FinalResult) {
+            final MainViewModel newMainViewModel = MainViewModel(
+              isFetchButtonEnabled: true,
+              logs: [...state.viewModel.logs, result.message],
+            );
+            yield MainDownloadedState(state.model, newMainViewModel);
+          }
+        }
       } catch (e) {
         final MainViewModel newMainViewModel = MainViewModel(
-            filenames: [],
-            isFetchButtonEnbaled: true,
-            isDownloadButtonEnbaled: false,
-            consoleLog: state.viewModel.consoleLog +
-                '\nFailed to fetch difference.'
+          isFetchButtonEnabled: true,
+          logs: [...state.viewModel.logs, 'E: An unexpected error occurred.', 'E: ${e.toString()}'],
         );
-        yield MainDiffLoadingFailedState(state.model, state.viewModel);
+        yield MainDownloadingFailedState(state.model, newMainViewModel);
       }
       return;
     }

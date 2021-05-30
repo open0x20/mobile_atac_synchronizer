@@ -30,6 +30,11 @@ dependencies:
   cupertino_icons: ^1.0.2
   flutter_bloc: ^7.0.0
   equatable: ^2.0.2
+  http: ^0.13.3
+  permission_handler: ^8.0.0+2
+  path: ^1.8.0
+  wakelock: ^0.5.2
+  path_provider: ^2.0.2
 
 dev_dependencies:
   flutter_test:

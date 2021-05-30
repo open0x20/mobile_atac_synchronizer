@@ -1,8 +1,13 @@
 class MainViewModel {
-  final List<String> filenames;
-  final bool isFetchButtonEnbaled;
-  final bool isDownloadButtonEnbaled;
-  final String consoleLog;
+  final List<String> difference;
+  final bool isFetchButtonEnabled;
+  final bool isDownloadButtonEnabled;
+  final List<String> logs;
 
-  MainViewModel({this.filenames, this.isFetchButtonEnbaled, this.isDownloadButtonEnbaled, this.consoleLog});
+  MainViewModel({
+    this.difference = const [],
+    this.isFetchButtonEnabled = false,
+    this.isDownloadButtonEnabled = false,
+    this.logs = const []
+  });
 }
