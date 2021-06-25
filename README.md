@@ -1,16 +1,9 @@
 # mobile_atac_synchronizer
+A simple app to synchronize songs from api-atac.
 
-Flutter app for downloading songs from api-atac
+## How it works
+We first calculate the difference by pressing the `Calculate Difference`-Button. The app then proceeds
+to scan its own files directory `com.open0x20.mobile_atac_synchronizer/files/` and `/storage/3735-3531/Music/`.
+The difference is then being displayed in a log-like manner.
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+If there is a difference you can press the `Download`-Button und look at the app downloading the songs for you.
