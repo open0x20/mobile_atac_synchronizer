@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
 abstract class Result<T> {
-  T result;
+  T? result;
   final String message;
 
   @mustCallSuper

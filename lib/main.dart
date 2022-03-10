@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile_atac_synchronizer/bloc/states.dart';
 
@@ -34,15 +33,12 @@ class MyApp extends StatelessWidget {
         ),
 
       ),
-      home: MyHomePage(title: 'ATAC Synchronizer'),
+      home: MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-  final String title;
-
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
@@ -54,7 +50,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          widget.title,
+          'ATAC Synchronizer',
           style: TextStyle(color: Colors.white),
         ),
         brightness: Brightness.dark,

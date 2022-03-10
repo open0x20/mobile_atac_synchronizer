@@ -25,4 +25,16 @@ class FileSystemOperations {
     }
     yield IntermediateResult<List<String>>(filenames, 'Found ${filenames.length} valid files in $directoryPath.');
   }
+
+  static isDirectoryWriteable(String directoryPath) {
+    try {
+      final file = File('$directoryPath/testfile134554.test');
+      file.writeAsStringSync('test');
+      file.deleteSync();
+
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
 }

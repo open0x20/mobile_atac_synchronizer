@@ -1,7 +1,7 @@
 class DifferenceRequestDto {
-  List<String> filenames;
+  late List<String> filenames;
 
-  DifferenceRequestDto({this.filenames});
+  DifferenceRequestDto(this.filenames);
 
   DifferenceRequestDto.fromJson(Map<String, dynamic> json) {
     filenames = json['filenames'].cast<String>();

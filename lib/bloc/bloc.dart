@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile_atac_synchronizer/bloc/events.dart';
 import 'package:mobile_atac_synchronizer/bloc/states.dart';
@@ -35,14 +33,14 @@ class MainBloc extends Bloc<MainBlocEvent, MainBlocState> {
             yield MainDiffLoadingState(state.model, newMainViewModel);
           } else if (result is ErrorResult) {
             final MainViewModel newMainViewModel = MainViewModel(
-                isFetchButtonEnabled: true,
-                isDownloadButtonEnabled: true,
+              isFetchButtonEnabled: true,
+              isDownloadButtonEnabled: true,
               logs: [...state.viewModel.logs, result.message],
             );
             yield MainDiffLoadingFailedState(state.model, newMainViewModel);
           } else if (result is FinalResult) {
             final MainViewModel newMainViewModel = MainViewModel(
-              difference: result.result,
+              difference: result.result!,
               isFetchButtonEnabled: true,
               isDownloadButtonEnabled: true,
               logs: [...state.viewModel.logs, result.message],

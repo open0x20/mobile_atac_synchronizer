@@ -1,7 +1,7 @@
 class DifferenceResponseDto {
-  Data data;
+  late Data? data;
 
-  DifferenceResponseDto({this.data});
+  DifferenceResponseDto(this.data);
 
   DifferenceResponseDto.fromJson(Map<String, dynamic> json) {
     data = json['data'] != null ? new Data.fromJson(json['data']) : null;
@@ -10,17 +10,17 @@ class DifferenceResponseDto {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     if (this.data != null) {
-      data['data'] = this.data.toJson();
+      data['data'] = this.data!.toJson();
     }
     return data;
   }
 }
 
 class Data {
-  int differenceCount;
-  List<String> difference;
+  late int differenceCount;
+  late List<String> difference;
 
-  Data({this.differenceCount, this.difference});
+  Data(this.differenceCount, this.difference);
 
   Data.fromJson(Map<String, dynamic> json) {
     differenceCount = json['differenceCount'];
